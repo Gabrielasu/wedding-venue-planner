@@ -23,15 +23,31 @@ interface ItemDefaults {
   dance:    { label: string; w: number; h: number };
 }
 
+// Default sizes use 1 SVG unit ≈ 5 cm so items match real-world dimensions.
+// bar 4.5 m × 1.2 m, buffet 6 m × 1.5 m, DJ 3 m × 2.5 m, dance floor 8 × 7 m.
 export const ITEM_DEFAULTS: ItemDefaults = {
   round:    { seats: 10, name: '', guests: [], babies: 0 },
   couple:   { seats: 2,  name: '__default_couple_name', guests: ['', ''] },
   babychair:{ name: '' },
-  bar:      { label: '__default_bar',    w: 110, h: 30 },
-  buffet:   { label: '__default_buffet', w: 160, h: 34 },
-  dj:       { label: '__default_dj',     w: 70,  h: 60 },
-  dance:    { label: '__default_dance',  w: 220, h: 200 },
+  bar:      { label: '__default_bar',    w: 90,  h: 24 },
+  buffet:   { label: '__default_buffet', w: 120, h: 30 },
+  dj:       { label: '__default_dj',     w: 60,  h: 50 },
+  dance:    { label: '__default_dance',  w: 160, h: 140 },
 };
+
+// Default viewBox = zoomed in on the priority rooms
+// (Sala Lustrzana, Atrium, Sala Pod Aniołami, Sala Złota, Taras).
+export const DEFAULT_VIEW: View = { x: 350, y: 20, w: 1050, h: 920 };
+
+// "Fit all" preset = the whole venue.
+export const FIT_ALL_VIEW: View = { x: 0, y: 0, w: 2600, h: 1271 };
+
+export interface View {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 interface PlanState {
   items: Item[];
@@ -40,6 +56,7 @@ interface PlanState {
   bgImage: string | null;
   nextTableNum: number;
   nextId: number;
+  view: View;
 
   addItem: (type: ItemType, x: number, y: number) => Item;
   updateItem: (id: number, patch: Partial<Item>) => void;
@@ -51,6 +68,13 @@ interface PlanState {
   loadSnapshot: (s: PlanSnapshot) => void;
   toSnapshot: () => PlanSnapshot;
   computeStats: () => PlanStats;
+
+  // View / zoom / pan
+  setView: (view: View) => void;
+  zoomAt: (svgX: number, svgY: number, factor: number) => void;
+  panBy: (dx: number, dy: number) => void;
+  resetView: () => void;
+  fitAll: () => void;
 }
 
 function buildItem(
@@ -100,6 +124,7 @@ export const usePlanStore = create<PlanState>()(
       bgImage: null,
       nextTableNum: 1,
       nextId: 1,
+      view: { ...DEFAULT_VIEW },
 
       addItem: (type, x, y) => {
         const id = get().nextId;
@@ -186,6 +211,27 @@ export const usePlanStore = create<PlanState>()(
         };
       },
 
+      setView: (view) => set({ view }),
+
+      zoomAt: (svgX, svgY, factor) => {
+        const v = get().view;
+        // Clamp zoom so it never inverts. Allow up to 50× in, 1× out (full venue).
+        const newW = Math.max(60, Math.min(4000, v.w * factor));
+        const newH = Math.max(60, Math.min(4000, v.h * factor));
+        const realFactor = newW / v.w; // re-derive to honour clamp
+        const newX = svgX - (svgX - v.x) * realFactor;
+        const newY = svgY - (svgY - v.y) * realFactor;
+        set({ view: { x: newX, y: newY, w: newW, h: newH } });
+      },
+
+      panBy: (dx, dy) =>
+        set((s) => ({
+          view: { ...s.view, x: s.view.x + dx, y: s.view.y + dy },
+        })),
+
+      resetView: () => set({ view: { ...DEFAULT_VIEW } }),
+      fitAll: () => set({ view: { ...FIT_ALL_VIEW } }),
+
       computeStats: () => {
         const items = get().items;
         const round = items.filter((i): i is RoundTableItem => i.type === 'round');
@@ -228,6 +274,7 @@ export const usePlanStore = create<PlanState>()(
         bgImage: s.bgImage,
         nextTableNum: s.nextTableNum,
         nextId: s.nextId,
+        view: s.view,
       }),
     },
   ),

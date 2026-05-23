@@ -9,9 +9,6 @@ import { usePlanStore } from '@/store/planStore';
 import { tStandalone } from '@/i18n/useTranslation';
 import { RoundTableItem, CoupleTableItem } from '@/types';
 
-const VIEWBOX_W = 2600;
-const VIEWBOX_H = 1271;
-
 const INLINE_STYLE = `
   .room{fill:#ffffff;stroke:#1f1b16;stroke-width:1.4}
   .room.priority{fill:#fffbf0;stroke:#8a6d3b;stroke-width:2}
@@ -72,9 +69,14 @@ async function rasterize(scale = 2): Promise<HTMLCanvasElement> {
       img.onerror = (e) => rej(e instanceof Error ? e : new Error('image load failed'));
       img.src = url;
     });
+    // Match the canvas to whatever the user currently has in view, so the
+    // export looks like what they see on screen.
+    const vb = svg.viewBox.baseVal;
+    const vbW = vb && vb.width ? vb.width : 1050;
+    const vbH = vb && vb.height ? vb.height : 920;
     const canvas = document.createElement('canvas');
-    canvas.width = VIEWBOX_W * scale;
-    canvas.height = VIEWBOX_H * scale;
+    canvas.width = Math.round(vbW * scale);
+    canvas.height = Math.round(vbH * scale);
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('No 2D context');
     ctx.fillStyle = '#faf7f2';

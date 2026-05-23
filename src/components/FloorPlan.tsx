@@ -46,19 +46,20 @@ export function FloorPlan() {
         <line x1={320} y1={540} x2={320} y2={700} stroke="#aaa" strokeWidth={0.6} />
       </g>
 
-      {/* TARAS — curved terrace (priority) */}
+      {/* TARAS — curved terrace (priority). Centered above the priority rooms
+          (Sala Lustrzana / Atrium / Sala Pod Aniołami) at x≈1000. */}
       <g>
         <path
-          d="M 940 380 L 940 280 Q 940 80 1310 80 Q 1690 80 1690 280 L 1690 380 Z"
+          d="M 700 380 L 700 280 Q 700 80 1000 80 Q 1300 80 1300 280 L 1300 380 Z"
           className="terrace"
         />
-        <path d="M 980 360 Q 1310 130 1650 360" className="room-detail" />
-        <path d="M 1010 360 Q 1310 170 1620 360" className="room-detail" />
-        <text x={1310} y={220} className="room-label small" letterSpacing={3}>
+        <path d="M 730 360 Q 1000 130 1270 360" className="room-detail" />
+        <path d="M 760 360 Q 1000 170 1240 360" className="room-detail" />
+        <text x={1000} y={220} className="room-label small" letterSpacing={3}>
           TARAS
         </text>
         <path
-          d="M 1310 240 L 1310 270"
+          d="M 1000 240 L 1000 270"
           stroke="#1f1b16"
           strokeWidth={1.4}
           opacity={0.6}

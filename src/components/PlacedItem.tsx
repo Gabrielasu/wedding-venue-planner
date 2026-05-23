@@ -27,11 +27,11 @@ export function PlacedItem({ item, selected }: Props) {
     >
       {selected && (
         <>
-          <line x1={0} y1={0} x2={0} y2={-70} className="rotate-line" />
+          <line x1={0} y1={0} x2={0} y2={-40} className="rotate-line" />
           <circle
             cx={0}
-            cy={-78}
-            r={8}
+            cy={-46}
+            r={5}
             className="rotate-handle"
             data-handle="rotate"
           />
@@ -60,8 +60,10 @@ function RoundBody({
   rot: number;
   tableShort: string;
 }) {
-  const r = 42;
-  const seatR = 9;
+  // Realistic scale: 1 SVG unit ≈ 5 cm. A 2.2 m table with chairs around it
+  // gives a ~3 m footprint — which fits comfortably in a typical 8×10 m room.
+  const r = 22;
+  const seatR = 5;
   const seats = item.seats || 10;
   const guests = item.guests || [];
   const filledCount = guests.filter((g) => g && g.trim()).length;
@@ -86,31 +88,31 @@ function RoundBody({
     <>
       {seatNodes}
       <circle r={r} className="table-circle selectable" />
-      <text className="item-label" y={-4} transform={`rotate(${rot})`}>
+      <text className="item-label" y={-2} fontSize={9} transform={`rotate(${rot})`}>
         {tableShort}
         {item.number}
       </text>
       {item.name ? (
         <>
-          <text className="item-sub" y={11} transform={`rotate(${rot})`}>
-            {item.name.slice(0, 18)}
+          <text className="item-sub" y={8} fontSize={6.5} transform={`rotate(${rot})`}>
+            {item.name.slice(0, 16)}
           </text>
-          <text className="item-sub" y={24} transform={`rotate(${rot})`}>
+          <text className="item-sub" y={15} fontSize={6.5} transform={`rotate(${rot})`}>
             {filledCount}/{item.seats}
           </text>
         </>
       ) : (
-        <text className="item-sub" y={13} transform={`rotate(${rot})`}>
+        <text className="item-sub" y={9} fontSize={7} transform={`rotate(${rot})`}>
           {filledCount}/{item.seats}
         </text>
       )}
       {item.babies > 0 && (
-        <g transform={`translate(${r - 10},${-r - 4})`}>
-          <rect x={-12} y={-12} width={24} height={24} rx={4} className="baby-chair" />
+        <g transform={`translate(${r - 4},${-r - 2})`}>
+          <rect x={-7} y={-7} width={14} height={14} rx={2} className="baby-chair" />
           <text
             textAnchor="middle"
-            y={5}
-            fontSize={14}
+            y={3}
+            fontSize={9}
             fontWeight={700}
             fill="white"
             transform={`rotate(${rot})`}
@@ -130,8 +132,9 @@ function CoupleBody({
   item: Extract<Item, { type: 'couple' }>;
   rot: number;
 }) {
-  const w = 110;
-  const h = 40;
+  // 2.4m × 0.9m sweetheart table (12 SVG units = ~0.6 m)
+  const w = 60;
+  const h = 22;
   return (
     <>
       <rect
@@ -139,22 +142,22 @@ function CoupleBody({
         y={-h / 2}
         width={w}
         height={h}
-        rx={4}
+        rx={3}
         className="table-couple selectable"
       />
       <circle
-        cx={-28}
-        cy={-h / 2 - 12}
-        r={9}
+        cx={-15}
+        cy={-h / 2 - 7}
+        r={5}
         className={'seat' + ((item.guests || [])[0] ? ' filled' : '')}
       />
       <circle
-        cx={28}
+        cx={15}
         cy={-h / 2 - 12}
         r={9}
         className={'seat' + ((item.guests || [])[1] ? ' filled' : '')}
       />
-      <text className="item-label" y={6} fontSize={18} transform={`rotate(${rot})`}>
+      <text className="item-label" y={4} fontSize={12} transform={`rotate(${rot})`}>
         ♥
       </text>
     </>
@@ -164,11 +167,11 @@ function CoupleBody({
 function BabyChairBody({ rot }: { rot: number }) {
   return (
     <>
-      <rect x={-12} y={-12} width={24} height={24} rx={4} className="baby-chair selectable" />
+      <rect x={-7} y={-7} width={14} height={14} rx={2} className="baby-chair selectable" />
       <text
         textAnchor="middle"
-        y={5}
-        fontSize={14}
+        y={3}
+        fontSize={9}
         fill="white"
         fontWeight={700}
         transform={`rotate(${rot})`}
@@ -200,7 +203,7 @@ function DanceBody({
         rx={6}
         className="dance selectable"
       />
-      <text className="item-label" y={6} fontSize={14} transform={`rotate(${rot})`}>
+      <text className="item-label" y={4} fontSize={11} transform={`rotate(${rot})`}>
         {label.toUpperCase()}
       </text>
     </>
@@ -229,7 +232,7 @@ function BlockBody({
         rx={3}
         className="block selectable"
       />
-      <text className="item-label" y={5} transform={`rotate(${rot})`}>
+      <text className="item-label" y={3} fontSize={8} transform={`rotate(${rot})`}>
         {label.toUpperCase()}
       </text>
     </>

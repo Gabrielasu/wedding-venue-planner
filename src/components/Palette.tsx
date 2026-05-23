@@ -118,9 +118,11 @@ export function Palette() {
   const addItem = usePlanStore((s) => s.addItem);
 
   function onAdd(type: ItemType) {
-    // Drop in the priority area, with a small jitter so items don't stack.
-    const cx = 1080 + (Math.random() - 0.5) * 80;
-    const cy = 650 + (Math.random() - 0.5) * 80;
+    // Drop in the center of whatever the user currently has in view, with a
+    // small jitter so consecutive adds don't stack on top of each other.
+    const view = usePlanStore.getState().view;
+    const cx = view.x + view.w / 2 + (Math.random() - 0.5) * 80;
+    const cy = view.y + view.h / 2 + (Math.random() - 0.5) * 80;
     addItem(type, cx, cy);
   }
 
