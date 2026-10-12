@@ -1,59 +1,27 @@
+<div align="center">
+
 # Wedding Venue Planner
 
-An interactive seating-plan editor for a wedding venue. Drop round tables, a
-rectangular couple's table, baby chairs, a bar, buffet, DJ booth, and a dance
-floor onto a stylized floor plan of the venue. Each table tracks its own guest
-list. Export the result as PNG or PDF.
+**Lay out the tables, seat your guests and print the plan, all in the browser.**<br />
+Drag round tables, the couple's table, a bar, DJ booth and dance floor onto the venue, fill in each table's guest list, then export a PNG or PDF.
 
-Built for a specific venue (the rooms `Sala Lustrzana`, `Atrium`,
-`Sala Pod Aniołami`, `Sala Złota` and `Taras` are drawn into the simplified
-floor plan), but works fine with any uploaded floor-plan image as a background.
+![React 18](https://img.shields.io/badge/React-18-a67c3a?style=flat-square&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-a67c3a?style=flat-square&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-a67c3a?style=flat-square&logo=vite&logoColor=white)
+![PL / EN](https://img.shields.io/badge/UI-PL_%2F_EN-3b3226?style=flat-square)
+![License: MIT](https://img.shields.io/badge/license-MIT-3b3226?style=flat-square)
 
-UI is available in **Polish** (default) and **English**.
+<img src="docs/demo.gif" width="100%" alt="Demo on a sample venue: adding round tables to the Grand Hall, placing the couple's table, dance floor, DJ booth and bar, rotating the bar, adding a baby chair, filling in a table's guest list, zooming, and switching the UI between English and Polish." />
 
----
+<sub>The demo uses a made-up venue (<code>docs/sample-floor-plan.png</code>) uploaded as the background. Guest names are made up too.</sub>
 
-## Stack
+</div>
 
-- **React 18** + **TypeScript**
-- **Vite** for dev / build
-- **Zustand** (with `persist` middleware) for app state and language preference
-- **jsPDF** for PDF export
-- Native SVG for rendering — no canvas / pixi / konva dependency
+## Why
 
-## Project layout
+Seating plans for a wedding usually end up as a spreadsheet plus a hand-drawn sketch of the room, and the two drift apart quickly. This puts both in one place: the floor plan is the editor, every table carries its own guest list, and the live counters show how many seats and named guests you have so far. When it's done, you can export it as one image for the venue coordinator or as a PDF with the full guest list per table.
 
-```
-wedding-venue-planner/
-├── index.html              # Vite entry
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── src/
-│   ├── main.tsx            # React root
-│   ├── App.tsx
-│   ├── components/
-│   │   ├── Toolbar.tsx
-│   │   ├── LanguageToggle.tsx
-│   │   ├── Palette.tsx
-│   │   ├── Canvas.tsx
-│   │   ├── FloorPlan.tsx       # SVG of the venue (Sala Lustrzana, Atrium, etc.)
-│   │   ├── PlacedItem.tsx
-│   │   ├── Inspector.tsx       # Right-hand properties panel
-│   │   └── GuestModal.tsx
-│   ├── store/
-│   │   └── planStore.ts        # Zustand store, persistence, stats
-│   ├── i18n/
-│   │   ├── translations.ts     # PL + EN dictionaries
-│   │   └── useTranslation.ts   # t() hook + standalone tStandalone()
-│   ├── lib/
-│   │   └── export.ts           # PNG, PDF, JSON save/load
-│   ├── styles/
-│   │   └── globals.css
-│   └── types/
-│       └── index.ts            # Discriminated-union item types
-└── README.md
-```
+It ships with a built-in plan of the venue it was originally made for, but it works just as well with any floor-plan image you upload as the background. To try that, upload [`docs/sample-floor-plan.png`](docs/sample-floor-plan.png), the made-up venue used in the demo.
 
 ## Quick start
 
@@ -62,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Vite will open the app at `http://localhost:5173`.
+Vite serves the app at `http://localhost:5173`. Click anything in the left palette to drop it onto the plan, then drag it into place.
 
 Other scripts:
 
@@ -74,44 +42,115 @@ npm run typecheck   # tsc --noEmit only
 
 ## Features
 
-- **Floor plan** drawn as SVG, with the priority rooms highlighted in warm gold.
-  Toggle between the simplified plan and an uploaded background image
-  (`Toolbar → Upload floor plan`).
-- **Palette** of items: round table (up to 10 seats), couple's rectangular
-  table, baby chair, bar, buffet, DJ booth, dance floor. Click to drop one
-  onto the canvas.
-- **Drag** items to reposition. Click to select. Drag the orange handle above
-  a selected item to rotate. `Delete` / `Backspace` removes the selection.
-- **Inspector** (right panel) edits the selected item: table number, name,
-  seat count, baby chairs at this table, per-seat guest names (via a modal),
-  position, rotation, and the size of bar/buffet/DJ/dance floor.
-- **Live stats** in the toolbar: tables, seats, named guests, baby chairs.
-- **Save / load** plans as JSON. **Export** to PNG (single image) or PDF
-  (A3 landscape, plus a second page with the full guest list per table).
-- **Auto-save** to `localStorage` so closing the tab doesn't lose work.
-- **Language toggle** (PL / EN) in the toolbar. Room names stay in Polish in
-  both languages — they're the venue's proper nouns — but every UI string is
-  translated. The main-entrance arrow swaps to English when EN is active.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-## Keyboard shortcuts
+**Build the layout**
+- Round tables (up to 14 seats, 10 by default), a rectangular couple's table and baby chairs
+- Bar, buffet, DJ booth and dance floor blocks, each resizable
+- Drag to move, orange handle to rotate, <kbd>Delete</kbd> to remove
+- Duplicate any item from the inspector
 
-| Key | Action |
-| --- | --- |
-| `Delete` / `Backspace` | Delete the selected item |
-| `Escape` | Deselect / close modal |
+</td>
+<td width="50%" valign="top">
 
-## How the floor plan is drawn
+**Seat the guests**
+- Per-table name, number, seat count and baby-chair count
+- Guest list editor for every seat, with an empty / filled marker on the plan
+- Partner names on the couple's table
+- Live totals: tables, seats, named guests, baby chairs
 
-The SVG in `src/components/FloorPlan.tsx` uses a `viewBox` of `0 0 2600 1271`
-so its coordinate space matches the dimensions of the original floor-plan
-image. Each room is a single `<path>` or `<rect>`. Priority rooms (the
-five where guests are actually seated) get the `priority` class which
-highlights them with a warm gold border.
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
-If you have a different venue, you can replace the JSX in `FloorPlan.tsx`
-with your own room geometry, or simply ignore the simplified plan and
-upload your own floor-plan image via the toolbar.
+**Export and save**
+- PNG of the whole plan, rendered at 2× resolution
+- A3 landscape PDF, plus extra pages listing guests by table
+- Save / load plans as JSON
+- Auto-save to `localStorage`, so closing the tab loses nothing
 
-## License
+</td>
+<td width="50%" valign="top">
 
-MIT — see [LICENSE](./LICENSE).
+**Floor plan and language**
+- Built-in SVG plan of the venue, with the seating rooms highlighted in gold
+- Or upload your own floor-plan image as the background
+- Wheel zoom centred on the cursor, pan, fit-to-venue
+- Polish (default) and English UI, switchable from the toolbar
+
+</td>
+</tr>
+</table>
+
+<p align="center">
+  <img src="docs/screenshot.png" width="100%" alt="A finished plan on the sample venue: four round tables, a dance floor and DJ booth in the Grand Hall, the couple's table and two more round tables in the Orangery, and a bar in the bar alcove. The toolbar shows 6 tables, 62 seats and 7 named guests." />
+</p>
+
+## Controls
+
+| Input | Action |
+|---|---|
+| Click a palette item | Add it to the centre of the current view |
+| Click / drag an item | Select / move it |
+| Drag the orange handle | Rotate the selected item |
+| Drag empty canvas | Pan |
+| Mouse wheel | Zoom in / out around the cursor |
+| <kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd> | Zoom in / out / reset |
+| <kbd>Delete</kbd> / <kbd>Backspace</kbd> | Delete the selected item |
+| <kbd>Esc</kbd> | Deselect / close the guest list |
+
+## How it works
+
+```mermaid
+flowchart LR
+    P["Palette.tsx<br/>add items"] --> S["planStore.ts<br/>Zustand + persist"]
+    C["Canvas.tsx<br/>drag, rotate, pan, zoom"] --> S
+    I["Inspector.tsx + GuestModal.tsx<br/>edit tables & guests"] --> S
+    S --> C
+    S --> T["Toolbar.tsx<br/>live stats"]
+    S --> E["export.ts<br/>PNG · PDF · JSON"]
+    F["FloorPlan.tsx<br/>venue SVG"] --> C
+```
+
+All state lives in one Zustand store (`src/store/planStore.ts`) that is persisted to `localStorage`. Items are a discriminated union (`src/types/index.ts`), so each item type has its own inspector form and SVG renderer. Rendering is plain SVG, with no canvas or diagram library. Export serialises that same SVG, rasterises it to a canvas and hands it to jsPDF for the PDF.
+
+### Using a different venue
+
+The quickest route is **Upload floor plan** in the toolbar. The image is stretched over a 2600 × 1271 canvas, so a plan exported at that size (or that aspect ratio) lines up best. [`docs/sample-floor-plan.png`](docs/sample-floor-plan.png) is an example.
+
+For a vector plan with highlighted rooms, `src/components/FloorPlan.tsx` draws the venue with a `viewBox` of `0 0 2600 1271`, matching the original floor-plan image, and each room is one `<path>` or `<rect>`. Rooms where guests are seated get the `priority` class, which gives them the gold border. To adapt it, replace that JSX with your own room geometry.
+
+## Project layout
+
+```
+src/
+├── App.tsx                 # Toolbar + Palette + Canvas + Inspector
+├── components/
+│   ├── Toolbar.tsx         # file actions, exports, language toggle, stats
+│   ├── Palette.tsx         # items you can add
+│   ├── Canvas.tsx          # SVG viewport: drag, rotate, pan, zoom
+│   ├── FloorPlan.tsx       # venue rooms as SVG
+│   ├── PlacedItem.tsx      # renderers for each item type
+│   ├── Inspector.tsx       # right-hand properties panel
+│   └── GuestModal.tsx      # per-seat guest list
+├── store/planStore.ts      # Zustand store, persistence, stats
+├── i18n/                   # PL + EN dictionaries and t() hook
+├── lib/export.ts           # PNG, PDF, JSON save/load
+└── types/index.ts          # item types
+```
+
+## Roadmap ideas
+
+- Drag guests between tables
+- Import a guest list from CSV
+- Dietary and RSVP notes per guest
+- Hosted version on GitHub Pages
+
+---
+
+<div align="center">
+<sub>Built by <a href="https://github.com/Gabrielasu">@Gabrielasu</a> · MIT licensed</sub>
+</div>
